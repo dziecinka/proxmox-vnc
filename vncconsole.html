@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="version" content="20220510">
+        <meta name="application-name" content="HostBill Console Redirect">
+        <script type="text/javascript">
+            function parse() {
+                var result = {},
+                    tmp = [];
+                location.search
+                    .substr(1)
+                    .split("&")
+                    .forEach(function (item) {
+                        tmp = item.split("=");
+                        result[decodeURIComponent(tmp[0])] = decodeURIComponent(tmp[1]);
+                    });
+                return result;
+            }
+
+            function serialize(obj) {
+                var str = [];
+                for (var p in obj)
+                    if (obj.hasOwnProperty(p)) {
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    }
+                return str.join("&");
+            }
+
+            function setCookie(c_name, value, exdays) {
+                var exdate = new Date();
+                exdate.setDate(exdate.getDate() + exdays);
+                var c_value = escape(value) +
+                    ((exdays == null) ? "" : ("; expires=" + exdate.toUTCString()));
+                document.cookie = c_name + "=" + c_value + "; path=/; secure; samesite=none";
+            }
+
+            var query = parse();
+
+            setCookie("PVEAuthCookie", query.ticket, 1);
+
+            delete query['ticket'];
+            delete query['csrf'];
+
+            //redirect to proxmox novnc console
+            window.location.href = "/?" + serialize(query);
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
